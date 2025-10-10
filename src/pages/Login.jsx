@@ -1,20 +1,25 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "@/api/axios";
 import { toast } from "react-toastify";
+import api from "@/api/axios";
+import { getDeviceId } from "@/utils/deviceId";
+import { useAuth } from "@/context/userAuth";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const navigate = useNavigate();
+  const { setUser } = useAuth();
 
   const handleLogin = async () => {
     try {
-      await api.post("/auth/login", {
+      const res = await api.post("/auth/login", {
         loginId: email,
         password: pw,
         deviceId: getDeviceId()
       });
+      console.log(res.data);
+      setUser(res.data);
 
       toast.success("로그인 성공! 환영합니다 🎉");
       navigate("/");
@@ -41,7 +46,6 @@ export default function Login() {
           <p className="text-sm text-gray-500">선착순 구매 플랫폼</p>
         </div>
 
-        {/* ✅ form 제거 → div로 감싸고 onClick 으로 처리 */}
         <div className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">

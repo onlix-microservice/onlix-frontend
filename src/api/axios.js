@@ -13,9 +13,16 @@ instance.interceptors.request.use((config) => {
 instance.interceptors.response.use(
   res => res,
   err => {
-    if (err.response && err.response.status === 401) {
-      window.location.href = "/login"; 
+    const status = err.response?.status;
+    const url = err.config?.url || "";
+
+    const isAuthMe = url.endsWith("/api/auth/me");
+
+    if (status === 401 && !isAuthMe) {
+      useAuth().setUser(null);
+      console.warn("401 detected → user will be nullified by AuthProvider");
     }
+
     return Promise.reject(err);
   }
 );
