@@ -18,7 +18,6 @@ export default function Login() {
         password: pw,
         deviceId: getDeviceId()
       });
-      console.log(res.data);
       setUser(res.data);
 
       toast.success("로그인 성공! 환영합니다 🎉");

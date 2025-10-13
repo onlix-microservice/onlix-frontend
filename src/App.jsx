@@ -3,6 +3,7 @@ import LoginRoute from "@/routes/LoginRoute";
 import PrivateRoute from "@/routes/PrivateRoute";
 import Main from "@/pages/Main"; 
 import Login from "@/pages/Login";
+import ItemDetail from "@/pages/Item/ItemDetail"
 import { AuthProvider } from "@/context/userAuth";
 
 import { ToastContainer } from "react-toastify";
@@ -18,8 +19,9 @@ function AppContent() {
         <Routes>
           <Route path="/login" element={<LoginRoute><Login /></LoginRoute>} />
           {/* 보호된 페이지 */}
-           <Route element={<PrivateRoute />}>
+          <Route element={<PrivateRoute />}>
             <Route path="/" element={<Main />} />            
+            <Route path="/item/:id" element={<ItemDetail />} />
           </Route>
         </Routes>
 
