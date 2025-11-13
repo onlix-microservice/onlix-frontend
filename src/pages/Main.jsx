@@ -12,7 +12,7 @@ export default function Home({ user }) {
       id: 1,
       title: "THE MONSTERS 하이라이트 시리즈",
       image: "/images/the_monsters_highlight.webp",
-      openTime: "2025-10-13T10:00:00",
+      openTime: "2025-10-14T10:00:00",
       timeLeft: "",
       alarm: 52,
       stock: 30,
@@ -46,7 +46,7 @@ export default function Home({ user }) {
   const { setUser } = useAuth();
   const handleLogout = async () => {
     try {
-      await api.post("/auth/logout");       
+      await api.post("/user/auth/logout");       
       setUser(null);
     } catch (err) {
       alert("로그아웃 중 오류가 발생했습니다. 다시 시도해주세요.");
@@ -95,7 +95,7 @@ export default function Home({ user }) {
     if (diff <= 0) {
       return (
         <button
-          onClick={() => navigate(`/item/${item.id}`)}
+          onClick={() => {alert("구매하기 페이지로 이동")}}
           className="w-full py-3 rounded-xl bg-pink-500 text-white font-semibold hover:bg-pink-600 transition-all duration-300"
         >
           구매하기

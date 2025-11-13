@@ -1,7 +1,8 @@
 import axios from "axios";
 
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 const instance = axios.create({
-  baseURL: "http://localhost:8081/api", // Spring Boot Gateway
+  baseURL: baseURL, // Kong Proxy
   headers: { "Content-Type": "application/json" }, 
   withCredentials: true // 쿠키 자동 포함
 });
@@ -16,7 +17,7 @@ instance.interceptors.response.use(
     const status = err.response?.status;
     const url = err.config?.url || "";
 
-    const isAuthMe = url.endsWith("/api/auth/me");
+    const isAuthMe = url.endsWith("/api/user/auth/me");
 
     if (status === 401 && !isAuthMe) {
       useAuth().setUser(null);

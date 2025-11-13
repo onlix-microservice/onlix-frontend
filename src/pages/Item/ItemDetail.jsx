@@ -15,6 +15,7 @@ export default function ItemDetail() {
         brand: "POP MART",
         price: 21000,
         stock: 30,
+        openTime: "2025-10-14T10:00:00",
         releaseDate: "2025-09-20",
         image: "/images/the_monsters_highlight.webp",
         desc: `
@@ -29,6 +30,7 @@ The Monsters 크루의 매력을 담은 리미티드 에디션 인형 키링입�
         brand: "NIKE",
         price: 850000,
         stock: 0,
+        openTime: "2025-12-15T13:00:00",
         releaseDate: "2025-11-15",
         image: "/images/nike_tiffany.avif",
         desc: `
@@ -52,6 +54,9 @@ NIKE와 Tiffany의 첫 번째 협업 모델.
   }
 
   const soldOut = item.stock === 0;
+  const now = new Date();
+  const openDate = new Date(item.openTime);
+  const isOpenBefore = now < openDate;
 
   return (
     <div className="min-h-screen bg-[#fdfcfb] text-gray-800 flex flex-col">
@@ -83,10 +88,10 @@ NIKE와 Tiffany의 첫 번째 협업 모델.
             src={item.image}
             alt={item.name}
             className={`w-full max-w-md rounded-2xl shadow-lg object-contain transition ${
-              soldOut ? "opacity-50 grayscale" : ""
+              soldOut && !isOpenBefore ? "opacity-50 grayscale" : ""
             }`}
           />
-          {soldOut && (
+          {!isOpenBefore && soldOut && (
             <div className="absolute inset-0 flex items-center justify-center text-4xl font-extrabold text-gray-400 rotate-[-25deg] select-none">
               SOLD OUT
             </div>
@@ -107,28 +112,33 @@ NIKE와 Tiffany의 첫 번째 협업 모델.
 
           <p
             className={`mb-6 font-medium ${
-              soldOut
+                soldOut
                 ? "text-red-500"
                 : item.stock <= 3
-                ? "text-orange-500"
-                : "text-gray-600"
+                ? "text-red-500 font-semibold"
+                : "text-black font-semibold"
             }`}
           >
-            {soldOut ? "품절된 상품입니다." : `남은 수량: ${item.stock}개`}
+            {isOpenBefore 
+              ? null
+              : soldOut 
+              ? "품절된 상품입니다." : `남은 수량: ${item.stock}개`}
           </p>
 
           <button
-            disabled={soldOut}
+            disabled={soldOut || isOpenBefore}
             onClick={() => {
-              if (!soldOut) console.log("구매하기 페이지로 이동");
+              if (!soldOut && !isOpenBefore) {
+                alert("구매하기 페이지로 이동");
+              }
             }}
-            className={`w-full py-4 text-lg font-semibold rounded-full transition-all shadow-md ${
-              soldOut
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+            className={`w-full py-3 rounded-xl font-semibold transition-all shadow-md ${
+              soldOut || isOpenBefore
+                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                 : "bg-gradient-to-r from-pink-400 to-orange-400 text-white hover:opacity-90"
             }`}
           >
-            {soldOut ? "SOLD OUT" : "🎁 구매하기"}
+            {isOpenBefore ? '오픈 전' : soldOut ? "SOLD OUT" : "🎁 구매하기"}
           </button>
         </div>
       </main>

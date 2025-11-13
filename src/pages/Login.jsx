@@ -13,7 +13,7 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
-      const res = await api.post("/auth/login", {
+      const res = await api.post("/user/auth/login", {
         loginId: email,
         password: pw,
         deviceId: getDeviceId()

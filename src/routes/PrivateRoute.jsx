@@ -15,8 +15,8 @@ function PrivateRoute() {
         setRefreshing(true);
         
         try {
-          await api.post("/auth/refresh"); // refreshToken 쿠키 기반 자동 전송
-          const res = await api.get("/auth/me"); // 새 accessToken으로 재요청
+          await api.post("/user/auth/refresh"); // refreshToken 쿠키 기반 자동 전송
+          const res = await api.get("/user/auth/me"); // 새 accessToken으로 재요청
           setUser(res.data);
         } catch {
           navigate("/login", { replace: true });
