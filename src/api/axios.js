@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const instance = axios.create({
-  baseURL: "http://localhost:8081/api", // Spring Boot Gateway
+  baseURL: "/api",
   headers: { "Content-Type": "application/json" }, 
   withCredentials: true // 쿠키 자동 포함
 });
