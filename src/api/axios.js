@@ -1,8 +1,7 @@
 import axios from "axios";
 
-const baseURL = import.meta.env.VITE_API_BASE_URL;
 const instance = axios.create({
-  baseURL: baseURL, // Kong Proxy
+  baseURL: "/api",
   headers: { "Content-Type": "application/json" }, 
   withCredentials: true // 쿠키 자동 포함
 });
