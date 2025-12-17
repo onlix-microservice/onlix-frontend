@@ -122,7 +122,7 @@ NIKE와 Tiffany의 첫 번째 협업 모델.
             {isOpenBefore 
               ? null
               : soldOut 
-              ? "품절된 상품입니다." : `남은 수량: ${item.stock}개`}
+              ? "품절된 상품입니다." : `판매 수량: ${item.stock}개`}
           </p>
 
           <button

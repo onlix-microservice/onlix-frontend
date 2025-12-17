@@ -6,27 +6,45 @@ import Footer from "@/components/Footer";
 
 export default function Home({ user }) {
   const navigate = useNavigate();
+  const [items, setItems] = useState([]);
 
-  const [items, setItems] = useState([
-    {
-      id: 1,
-      title: "THE MONSTERS 하이라이트 시리즈",
-      image: "/images/the_monsters_highlight.webp",
-      openTime: "2025-10-14T10:00:00",
-      timeLeft: "",
-      alarm: 52,
-      stock: 30,
-    },
-    {
-      id: 2,
-      title: "NIKE × Tiffany & Co. AIR FORCE 1 1837 LIMITED EDITION",
-      image: "/images/nike_tiffany.avif",
-      openTime: "2025-12-15T13:00:00",
-      timeLeft: "",
-      alarm: 320,
-      stock: 5,
-    },
-  ]);
+  useEffect(() => {
+    const fetchItems = async () => {
+      try {
+        const res = await api.get("/catalog/products"); 
+        setItems(
+          res.data.map((item) => ({
+            ...item,
+            timeLeft: "", // 오픈까지 남은시각
+          }))
+        );
+      } catch (err) {
+        console.error("상품 목록 조회 중 오류:", err);
+      }
+    };
+
+    fetchItems();
+    // const [items, setItems] = useState([
+  //   {
+  //     id: 1,
+  //     title: "THE MONSTERS 하이라이트 시리즈",
+  //     image: "/images/the_monsters_highlight.webp",
+  //     openTime: "2025-12-11T10:00:00",
+  //     timeLeft: "",
+  //     alarm: 52,
+  //     stock: 30,
+  //   },
+  //   {
+  //     id: 2,
+  //     title: "NIKE × Tiffany & Co. AIR FORCE 1 1837 LIMITED EDITION",
+  //     image: "/images/nike_tiffany.avif",
+  //     openTime: "2025-12-15T13:00:00",
+  //     timeLeft: "",
+  //     alarm: 320,
+  //     stock: 5,
+  //   },
+  // ]);
+  }, []);
 
   // 타이머
   useEffect(() => {
@@ -34,7 +52,7 @@ export default function Home({ user }) {
       const now = new Date();
       setItems((prev) =>
         prev.map((item) => {
-          const diff = new Date(item.openTime) - now;
+          const diff = new Date(item.openDateTime) - now;
           if (diff <= 0) return { ...item, timeLeft: "00:00:00" };
           return { ...item, timeLeft: formatTimeLeft(diff) };
         })
@@ -82,7 +100,7 @@ export default function Home({ user }) {
   // 버튼 렌더링
   const renderButton = (item) => {
     const now = new Date();
-    const diff = new Date(item.openTime) - now;
+    const diff = new Date(item.openDateTime) - now;
 
     if (item.stock === 0) {
       return (
@@ -131,14 +149,14 @@ export default function Home({ user }) {
       <main className="max-w-5xl mx-auto px-6 py-12 grid grid-cols-1 sm:grid-cols-2 gap-10">
         {items.map((item) => {
           const now = new Date();
-          const diff = new Date(item.openTime) - now;
+          const diff = new Date(item.openDateTime) - now;
           const isOpen = diff <= 0;
           const soldOut = item.stock === 0;
 
           return (
             <div
-              key={item.id}
-              onClick={() => navigate(`/item/${item.id}`)}
+              key={item.productId}
+              onClick={() => navigate(`/item/${item.productId}`)}
               className={`relative bg-white border border-gray-100 rounded-2xl p-8 shadow-md transition-all duration-300 ${
                 soldOut
                   ? "opacity-50 pointer-events-none"
@@ -160,7 +178,7 @@ export default function Home({ user }) {
                   한정수량
                 </span>
                 <span className="text-xs font-semibold bg-gray-100 text-gray-800 px-3 py-1 rounded-full border">
-                  {formatDateTime(item.openTime)} 오픈
+                  {formatDateTime(item.openDateTime)} 오픈
                 </span>
               </div>
 
@@ -168,14 +186,14 @@ export default function Home({ user }) {
               <div className="flex justify-center mb-6">
                 <img
                   src={item.image}
-                  alt={item.title}
+                  alt={item.name}
                   className="w-48 h-48 object-contain drop-shadow-md transition-transform duration-300 hover:scale-105"
                 />
               </div>
 
               {/* 제목 */}
               <h2 className="text-center text-base font-semibold mb-2 text-gray-800">
-                {item.title}
+                {item.name}
               </h2>
 
               {/* 상태 표시 */}
@@ -210,7 +228,7 @@ export default function Home({ user }) {
               {/* 🔔 알림 문구 — 오픈 전 상태에서만 표시 */}
               {!isOpen && !soldOut && (
                 <p className="text-center text-xs text-gray-500 mt-3">
-                  {item.alarm.toLocaleString()}명이 알림을 신청했어요 🔔
+                  999명이 알림을 신청했어요 🔔
                 </p>
               )}
             </div>
