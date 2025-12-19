@@ -1,51 +1,85 @@
+import api from "@/api/axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Footer from "@/components/Footer";
 
 export default function ItemDetail() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [item, setItem] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const mockItems = [
-      {
-        id: 1,
-        name: "THE MONSTERS 하이라이트 시리즈 인형 키링 (랜덤)",
-        brand: "POP MART",
-        price: 21000,
-        stock: 30,
-        openTime: "2025-10-14T10:00:00",
-        releaseDate: "2025-09-20",
-        image: "/images/the_monsters_highlight.webp",
-        desc: `
-“THE MONSTERS 하이라이트 시리즈”는 POP MART의 대표 캐릭터 Labubu를 비롯한
-The Monsters 크루의 매력을 담은 리미티드 에디션 인형 키링입니다.
-각 제품은 랜덤 구성으로 제공되며, 미개봉 상태에서만 교환이 가능합니다.
-        `,
-      },
-      {
-        id: 2,
-        name: "NIKE × Tiffany & Co. AIR FORCE 1 1837 LIMITED EDITION",
-        brand: "NIKE",
-        price: 850000,
-        stock: 0,
-        openTime: "2025-12-15T13:00:00",
-        releaseDate: "2025-11-15",
-        image: "/images/nike_tiffany.avif",
-        desc: `
-NIKE와 Tiffany의 첫 번째 협업 모델.
-클래식한 Air Force 1 실루엣에 Tiffany 블루 포인트와 은장 디테일을 더한
-럭셔리 한정판 컬렉션입니다.
-        `,
-      },
-    ];
+    if (!id) return;
 
-    const found = mockItems.find((i) => i.id === Number(id));
-    setItem(found);
+    const fetchProductDetail = async () => {
+          try {
+            setLoading(true);
+            setNotFound(false);
+
+            const res = await api.get(`/catalog/products/${id}`);
+            console.log(res.data);
+            setItem(res.data);
+          
+          } catch (err) {
+            if (err.response?.status === 404) {
+              setNotFound(true);
+            }
+
+            console.error("상품 상세 조회 중 오류:", err);
+            setItem(null);
+          } finally {
+            setLoading(false);
+          }
+        };
+    
+        fetchProductDetail();
+//     const mockItems = [
+//       {
+//         id: 1,
+//         name: "THE MONSTERS 하이라이트 시리즈 인형 키링 (랜덤)",
+//         brand: "POP MART",
+//         price: 21000,
+//         stock: 30,
+//         openTime: "2025-10-14T10:00:00",
+//         releaseDate: "2025-09-20",
+//         image: "/images/the_monsters_highlight.webp",
+//         desc: `
+// “THE MONSTERS 하이라이트 시리즈”는 POP MART의 대표 캐릭터 Labubu를 비롯한
+// The Monsters 크루의 매력을 담은 리미티드 에디션 인형 키링입니다.
+// 각 제품은 랜덤 구성으로 제공되며, 미개봉 상태에서만 교환이 가능합니다.
+//         `,
+//       },
+//       {
+//         id: 2,
+//         name: "NIKE × Tiffany & Co. AIR FORCE 1 1837 LIMITED EDITION",
+//         brand: "NIKE",
+//         price: 850000,
+//         stock: 0,
+//         openTime: "2025-12-15T13:00:00",
+//         releaseDate: "2025-11-15",
+//         image: "/images/nike_tiffany.avif",
+//         desc: `
+// NIKE와 Tiffany의 첫 번째 협업 모델.
+// 클래식한 Air Force 1 실루엣에 Tiffany 블루 포인트와 은장 디테일을 더한
+// 럭셔리 한정판 컬렉션입니다.
+//         `,
+//       },
+//     ];
+
+    // const found = mockItems.find((i) => i.id === Number(id));
+    // setItem(found);
   }, [id]);
 
-  if (!item) {
+  // if (!item) {
+  //   return (
+  //     <div className="flex h-screen items-center justify-center text-gray-500">
+  //       상품을 찾을 수 없습니다 😢
+  //     </div>
+  //   );
+  // }
+  if (notFound) {
     return (
       <div className="flex h-screen items-center justify-center text-gray-500">
         상품을 찾을 수 없습니다 😢
@@ -53,7 +87,15 @@ NIKE와 Tiffany의 첫 번째 협업 모델.
     );
   }
 
-  const soldOut = item.stock === 0;
+  if (!item) {
+    return (
+      <div className="flex h-screen items-center justify-center text-gray-500">
+        일시적인 오류가 발생했습니다 😢
+      </div>
+    );
+  }
+
+  const soldOut = item.soldCount === 0;
   const now = new Date();
   const openDate = new Date(item.openTime);
   const isOpenBefore = now < openDate;
@@ -101,7 +143,7 @@ NIKE와 Tiffany의 첫 번째 협업 모델.
         {/* Right: Info */}
         <div className="flex flex-col justify-center">
           <h2 className="text-2xl font-bold mb-2">{item.name}</h2>
-          <p className="text-sm text-gray-500 mb-1">Brand · {item.brand}</p>
+          <p className="text-sm text-gray-500 mb-1">Brand · {item.brandName}</p>
           <p className="text-sm text-gray-400 mb-4">
             출시일 · {item.releaseDate}
           </p>
@@ -114,7 +156,7 @@ NIKE와 Tiffany의 첫 번째 협업 모델.
             className={`mb-6 font-medium ${
                 soldOut
                 ? "text-red-500"
-                : item.stock <= 3
+                : item.soldCount <= 3
                 ? "text-red-500 font-semibold"
                 : "text-black font-semibold"
             }`}
@@ -122,7 +164,7 @@ NIKE와 Tiffany의 첫 번째 협업 모델.
             {isOpenBefore 
               ? null
               : soldOut 
-              ? "품절된 상품입니다." : `판매 수량: ${item.stock}개`}
+              ? "품절된 상품입니다." : `판매 수량: ${item.soldCount}개`}
           </p>
 
           <button
@@ -147,7 +189,7 @@ NIKE와 Tiffany의 첫 번째 협업 모델.
       <section className="max-w-4xl mx-auto px-6 py-12 border-t border-gray-100">
         <h3 className="text-xl font-bold mb-4 text-gray-800">상품 설명</h3>
         <pre className="whitespace-pre-wrap text-gray-700 leading-relaxed text-sm">
-          {item.desc}
+          {item.description}
         </pre>
       </section>
 
