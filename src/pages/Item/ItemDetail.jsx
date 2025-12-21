@@ -127,7 +127,7 @@ export default function ItemDetail() {
         {/* Left: Product Image */}
         <div className="relative flex justify-center items-start">
           <img
-            src={item.image}
+            src={item.thumbnailUrl}
             alt={item.name}
             className={`w-full max-w-md rounded-2xl shadow-lg object-contain transition ${
               soldOut && !isOpenBefore ? "opacity-50 grayscale" : ""

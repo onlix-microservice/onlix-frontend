@@ -151,8 +151,8 @@ export default function Home({ user }) {
           const now = new Date();
           const diff = new Date(item.openDateTime) - now;
           const isOpen = diff <= 0;
-          const soldOut = item.stock === 0;
-
+          const soldOut = item.soldOut;
+          
           return (
             <div
               key={item.productId}
@@ -185,7 +185,7 @@ export default function Home({ user }) {
               {/* 이미지 */}
               <div className="flex justify-center mb-6">
                 <img
-                  src={item.image}
+                  src={item.thumbnailUrl}
                   alt={item.name}
                   className="w-48 h-48 object-contain drop-shadow-md transition-transform duration-300 hover:scale-105"
                 />
