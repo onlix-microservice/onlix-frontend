@@ -19,7 +19,6 @@ export default function ItemDetail() {
             setNotFound(false);
 
             const res = await api.get(`/catalog/products/${id}`);
-            console.log(res.data);
             setItem(res.data);
           
           } catch (err) {
@@ -95,9 +94,9 @@ export default function ItemDetail() {
     );
   }
 
-  const soldOut = item.soldCount === 0;
+  const soldOut = item.soldOut;
   const now = new Date();
-  const openDate = new Date(item.openTime);
+  const openDate = new Date(item.openDateTime);
   const isOpenBefore = now < openDate;
 
   return (
@@ -149,7 +148,7 @@ export default function ItemDetail() {
           </p>
 
           <p className="text-3xl font-extrabold text-gray-900 mb-4">
-            ₩ {item.price.toLocaleString()}원
+            {item.price.toLocaleString()}원
           </p>
 
           <p
