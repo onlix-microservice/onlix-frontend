@@ -1,0 +1,21 @@
+.swiper-pagination-fraction {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  left: auto;
+  bottom: auto;
+  width: auto;
+
+  padding: 4px 10px;
+  border-radius: 9999px;
+
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.swiper-button-prev,
+.swiper-button-next {
+  color: white;
+}
