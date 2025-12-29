@@ -1,4 +1,5 @@
 import axios from "axios";
+import { emitUnauthorized } from "@/auth/authEvents";
 
 const instance = axios.create({
   baseURL: "/api",
@@ -11,16 +12,37 @@ instance.interceptors.request.use((config) => {
 });
 
 instance.interceptors.response.use(
-  res => res,
+  res => {
+    const body = res.data;
+
+    // 표준 응답만 언래핑
+    if (
+      body &&
+      typeof body === "object" &&
+      "code" in body &&
+      "data" in body
+    ) {
+      return body.data;
+    }
+
+    // 비표준 응답은 그대로
+    return body;
+  },
   err => {
     const status = err.response?.status;
     const url = err.config?.url || "";
 
-    const isAuthMe = url.endsWith("/api/user/auth/me");
+    const isAuthMe = url.includes("/user/auth/me");
 
-    if (status === 401 && !isAuthMe) {
-      useAuth().setUser(null);
-      console.warn("401 detected → user will be nullified by AuthProvider");
+    // /auth/me의 401은 "비로그인" 정상 플로우로 처리(서버에서는 401 리턴)
+    if (status === 401 && isAuthMe) {
+      return Promise.reject(err);
+    }
+
+    // 그 외에는 
+    if (status === 401) {
+      emitUnauthorized({ url, status });
+      // useAuth().setUser(null);
     }
 
     return Promise.reject(err);

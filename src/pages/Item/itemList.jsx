@@ -1,75 +1,35 @@
-import api from "@/api/axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/context/userAuth";
 import Footer from "@/components/Footer";
+import { catalogApi } from "@/api/catalogApi";
 
-export default function Home({ user }) {
+export default function ItemList() {
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
+  const [now, setNow] = useState(Date.now());
 
+  /* 상품 조회 */
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const res = await api.get("/catalog/products"); 
-        setItems(
-          res.data.map((item) => ({
-            ...item,
-            timeLeft: "", // 오픈까지 남은시각
-          }))
-        );
+        const products = await catalogApi.getProducts();
+        setItems(products); 
       } catch (err) {
         console.error("상품 목록 조회 중 오류:", err);
       }
     };
 
     fetchItems();
-    // const [items, setItems] = useState([
-  //   {
-  //     id: 1,
-  //     title: "THE MONSTERS 하이라이트 시리즈",
-  //     image: "/images/the_monsters_highlight.webp",
-  //     openTime: "2025-12-11T10:00:00",
-  //     timeLeft: "",
-  //     alarm: 52,
-  //     stock: 30,
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "NIKE × Tiffany & Co. AIR FORCE 1 1837 LIMITED EDITION",
-  //     image: "/images/nike_tiffany.avif",
-  //     openTime: "2025-12-15T13:00:00",
-  //     timeLeft: "",
-  //     alarm: 320,
-  //     stock: 5,
-  //   },
-  // ]);
   }, []);
 
   // 타이머
   useEffect(() => {
     const timer = setInterval(() => {
-      const now = new Date();
-      setItems((prev) =>
-        prev.map((item) => {
-          const diff = new Date(item.openDateTime) - now;
-          if (diff <= 0) return { ...item, timeLeft: "00:00:00" };
-          return { ...item, timeLeft: formatTimeLeft(diff) };
-        })
-      );
+      setNow(Date.now());
     }, 1000);
+
     return () => clearInterval(timer);
   }, []);
-
-  const { setUser } = useAuth();
-  const handleLogout = async () => {
-    try {
-      await api.post("/user/auth/logout");       
-      setUser(null);
-    } catch (err) {
-      alert("로그아웃 중 오류가 발생했습니다. 다시 시도해주세요.");
-    }
-  };
 
   // 날짜 포맷
   const formatDateTime = (datetimeStr) => {
@@ -97,37 +57,6 @@ export default function Home({ user }) {
     return `${h}:${m}:${s}`;
   };
 
-  // 버튼 렌더링
-  // const renderButton = (item) => {
-  //   const now = new Date();
-  //   const diff = new Date(item.openDateTime) - now;
-
-  //   if (item.soldOut) {
-  //     return (
-  //       <button className="w-full py-3 rounded-xl bg-gray-300 text-gray-600 cursor-not-allowed">
-  //         판매 완료
-  //       </button>
-  //     );
-  //   }
-
-  //   // if (diff <= 0) {
-  //   //   return (
-  //   //     <button
-  //   //       onClick={() => {alert("구매하기 페이지로 이동")}}
-  //   //       className="w-full py-3 rounded-xl bg-pink-500 text-white font-semibold hover:bg-pink-600 transition-all duration-300"
-  //   //     >
-  //   //       구매하기
-  //   //     </button>
-  //   //   );
-  //   // }
-
-  //   return (
-  //     <button className="w-full py-3 rounded-xl bg-gray-200 font-semibold text-gray-500 cursor-not-allowed">
-  //       오픈 전
-  //     </button>
-  //   );
-  // };
-
   return (
     <div className="min-h-screen bg-white text-gray-800">
       {/* Header */}
@@ -136,23 +65,19 @@ export default function Home({ user }) {
           <h1 className="text-xl font-semibold text-gray-900">
             ⏰ 한정상품 선착순 구매 서두르세요! ⏰
           </h1>
-          <button
-            onClick={handleLogout}
-            className="text-sm text-gray-600 hover:text-gray-800"
-          >
-            로그아웃
-          </button>
         </div>
       </header>
 
       {/* Main */}
       <main className="max-w-5xl mx-auto px-6 py-12 grid grid-cols-1 sm:grid-cols-2 gap-10">
         {items.map((item) => {
-          const now = new Date();
-          const diff = new Date(item.openDateTime) - now;
+          const diff =
+            new Date(item.openDateTime).getTime() - now;
+
           const isOpen = diff <= 0;
           const soldOut = item.soldOut;
-          
+          const timeLeft = formatTimeLeft(diff);
+
           return (
             <div
               key={item.productId}
@@ -187,6 +112,7 @@ export default function Home({ user }) {
                 <img
                   src={item.thumbnailUrl}
                   alt={item.name}
+                  loading="lazy"
                   className="w-48 h-48 object-contain drop-shadow-md transition-transform duration-300 hover:scale-105"
                 />
               </div>
@@ -212,20 +138,17 @@ export default function Home({ user }) {
                   </p>
                   <p
                     className={`text-center text-2xl font-extrabold mb-4 tracking-wide ${
-                      item.timeLeft.startsWith("D-")
+                      timeLeft.startsWith("D-")
                         ? "text-gray-900"
                         : "text-red-500"
                     }`}
                   >
-                    {item.timeLeft || "00:00:00"}
+                    {timeLeft}
                   </p>
                 </>
               )}
 
-              {/* 버튼 */}
-              {/* {renderButton(item)} */}
-
-              {/* 🔔 알림 문구 — 오픈 전 상태에서만 표시 */}
+              {/* 알림 문구 */}
               {!isOpen && !soldOut && (
                 <p className="text-center text-xs text-gray-500 mt-3">
                   999명이 알림을 신청했어요 🔔
@@ -236,7 +159,6 @@ export default function Home({ user }) {
         })}
       </main>
 
-      {/* Footer */}
       <Footer />
     </div>
   );

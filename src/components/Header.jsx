@@ -1,14 +1,13 @@
-import api from "@/api/axios";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/context/userAuth";
+import { useAuth } from "@/auth/AuthProvider";
+import { userAuthApi } from "@/api/userAuthApi"
 
 export default function Header() {
   const navigate = useNavigate();
   const { user, setUser } = useAuth();
-
- const handleLogout = async () => {
+  const handleLogout = async () => {
     try {
-      await api.post("/user/auth/logout");       
+      await userAuthApi.logout();       
       setUser(null);
     } catch (err) {
       alert("로그아웃 중 오류가 발생했습니다. 다시 시도해주세요.");

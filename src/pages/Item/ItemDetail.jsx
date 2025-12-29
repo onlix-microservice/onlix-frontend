@@ -1,7 +1,7 @@
-import api from "@/api/axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Footer from "@/components/Footer";
+import { catalogApi } from "@/api/catalogApi";
 
 export default function ItemDetail() {
   const { id } = useParams();
@@ -18,8 +18,9 @@ export default function ItemDetail() {
             setLoading(true);
             setNotFound(false);
 
-            const res = await api.get(`/catalog/products/${id}`);
-            setItem(res.data);
+            const product = await catalogApi.getProduct(id);
+            // api.get(`/catalog/products/${id}`);
+            setItem(product);
           
           } catch (err) {
             if (err.response?.status === 404) {
@@ -34,50 +35,8 @@ export default function ItemDetail() {
         };
     
         fetchProductDetail();
-//     const mockItems = [
-//       {
-//         id: 1,
-//         name: "THE MONSTERS 하이라이트 시리즈 인형 키링 (랜덤)",
-//         brand: "POP MART",
-//         price: 21000,
-//         stock: 30,
-//         openTime: "2025-10-14T10:00:00",
-//         releaseDate: "2025-09-20",
-//         image: "/images/the_monsters_highlight.webp",
-//         desc: `
-// “THE MONSTERS 하이라이트 시리즈”는 POP MART의 대표 캐릭터 Labubu를 비롯한
-// The Monsters 크루의 매력을 담은 리미티드 에디션 인형 키링입니다.
-// 각 제품은 랜덤 구성으로 제공되며, 미개봉 상태에서만 교환이 가능합니다.
-//         `,
-//       },
-//       {
-//         id: 2,
-//         name: "NIKE × Tiffany & Co. AIR FORCE 1 1837 LIMITED EDITION",
-//         brand: "NIKE",
-//         price: 850000,
-//         stock: 0,
-//         openTime: "2025-12-15T13:00:00",
-//         releaseDate: "2025-11-15",
-//         image: "/images/nike_tiffany.avif",
-//         desc: `
-// NIKE와 Tiffany의 첫 번째 협업 모델.
-// 클래식한 Air Force 1 실루엣에 Tiffany 블루 포인트와 은장 디테일을 더한
-// 럭셔리 한정판 컬렉션입니다.
-//         `,
-//       },
-//     ];
-
-    // const found = mockItems.find((i) => i.id === Number(id));
-    // setItem(found);
   }, [id]);
 
-  // if (!item) {
-  //   return (
-  //     <div className="flex h-screen items-center justify-center text-gray-500">
-  //       상품을 찾을 수 없습니다 😢
-  //     </div>
-  //   );
-  // }
   if (notFound) {
     return (
       <div className="flex h-screen items-center justify-center text-gray-500">
@@ -98,7 +57,7 @@ export default function ItemDetail() {
   const now = new Date();
   const openDate = new Date(item.openDateTime);
   const isOpenBefore = now < openDate;
-
+  
   return (
     <div className="min-h-screen bg-[#fdfcfb] text-gray-800 flex flex-col">
       {/* Header */}
@@ -160,10 +119,9 @@ export default function ItemDetail() {
                 : "text-black font-semibold"
             }`}
           >
-            {isOpenBefore 
-              ? null
-              : soldOut 
-              ? "품절된 상품입니다." : `판매 수량: ${item.soldCount}개`}
+            {soldOut
+              ? "품절된 상품입니다."
+              : `판매 수량: ${item.soldCount}개`}
           </p>
 
           <button
