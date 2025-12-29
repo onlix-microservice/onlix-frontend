@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/context/userAuth";
+import { useAuth } from "@/auth/AuthProvider";
 
 function LoginRoute({ children }) {
   const { user, checked } = useAuth();
