@@ -7,11 +7,26 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "src"),   // ✅ @ = src 폴더
+      "@": path.resolve(__dirname, "src"),   // @ = src 폴더
     },
   },
   server: {
+    // proxy: {
+    //   "/api/user": { target: "http://localhost:8081", changeOrigin: true },
+    //   "/api/catalog": { target: "http://localhost:8082", changeOrigin: true },
+    // },
+    proxy: {
+      "/api": {
+        target: "http://localhost:8000", // kong
+        changeOrigin: true,
+      },
+    },
+    port: 3000,
+    strictPort: true,
+  },
+  preview: {
     host: true,
     port: 3000,
+    strictPort: true,
   },
 })
